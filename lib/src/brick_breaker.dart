@@ -12,6 +12,12 @@ import 'config.dart';
 
 enum PlayState { welcome, playing, gameOver, won }              // Add this enumeration
 
+enum BallShape {
+  circle,
+  square,
+  triangle,
+}
+
 class BrickBreaker extends FlameGame
     with HasCollisionDetection, KeyboardEvents, TapCallbacks  {   // Modify this line
   BrickBreaker()
@@ -22,10 +28,14 @@ class BrickBreaker extends FlameGame
         ),
       );
 
+
   final ValueNotifier<int> score = ValueNotifier(0);  
   final rand = math.Random();
   double get width => size.x;
   double get height => size.y;
+  
+  final randomElement = math.Random();
+
 
   late PlayState _playState;                                    // Add from here...
   PlayState get playState => _playState;
@@ -55,6 +65,9 @@ class BrickBreaker extends FlameGame
   }
 
   void startGame() {
+    final ballShape = BallShape.values[randomElement.nextInt(BallShape.values.length)];
+
+    
     if (playState == PlayState.playing) return;
 
     world.removeAll(world.children.query<Ball>());
@@ -68,11 +81,13 @@ class BrickBreaker extends FlameGame
       Ball(
         difficultyModifier: difficultyModifier,
         radius: ballRadius,
+        
         position: size / 2,
         velocity: Vector2(
           (rand.nextDouble() - 0.5) * width,
           height * 0.2,
         ).normalized()..scale(height / 4),
+        shape: ballShape,
       ),
     );
 

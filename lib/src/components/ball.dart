@@ -8,24 +8,83 @@ import 'bat.dart';
 import 'brick.dart';
 import 'play_area.dart';
 
-class Ball extends CircleComponent
+class Ball extends PositionComponent
     with CollisionCallbacks, HasGameReference<BrickBreaker> {
   Ball({
     required this.velocity,
     required super.position,
     required double radius,
     required this.difficultyModifier,
+    required this.shape,
   }) : super(
-         radius: radius,
+         
          anchor: Anchor.center,
-         paint: Paint()
-           ..color = const Color(0xff1e6091)
-           ..style = PaintingStyle.fill,
-         children: [CircleHitbox()],
+         size: Vector2.all(radius * 2)
        );
 
   final Vector2 velocity;
   final double difficultyModifier;
+  final BallShape shape;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+
+    switch (shape) {
+      case BallShape.circle:
+        add(CircleHitbox());
+        break;
+
+      case BallShape.square:
+        add(RectangleHitbox());
+        break;
+
+      case BallShape.triangle:
+        add(RectangleHitbox());
+        break;
+    }
+  }
+  
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    final paint = Paint()
+      ..color = const Color(0xff1e6091)
+      ..style = PaintingStyle.fill;
+
+    switch (shape) {
+      case BallShape.circle:
+        canvas.drawCircle(
+          Offset(size.x / 2, size.y / 2),
+          size.x / 2,
+          paint,
+        );
+        break;
+
+      case BallShape.square:
+        canvas.drawRect(
+          Rect.fromLTWH(
+            0,
+            0,
+            size.x,
+            size.y,
+          ),
+          paint,
+        );
+        break;
+
+      case BallShape.triangle:
+        final path = Path()
+          ..moveTo(0, 0)
+          ..lineTo(size.x, 0)
+          ..lineTo(size.x / 2, size.y)
+          ..close();
+
+        canvas.drawPath(path, paint);
+        break;
+    }
+  }
 
   @override
   void update(double dt) {
@@ -73,5 +132,7 @@ class Ball extends CircleComponent
       }
       velocity.setFrom(velocity * difficultyModifier);
     }
+
+    
   }
 }
