@@ -89,7 +89,28 @@ class Ball extends PositionComponent
   @override
   void update(double dt) {
     super.update(dt);
+
     position += velocity * dt;
+
+    final halfSize = size.x / 2;
+
+    // Limite esquerdo
+    if (position.x - halfSize <= 0) {
+      position.x = halfSize;
+      velocity.x = velocity.x.abs();
+    }
+
+    // Limite direito
+    if (position.x + halfSize >= game.width) {
+      position.x = game.width - halfSize;
+      velocity.x = -velocity.x.abs();
+    }
+
+    // Limite superior
+    if (position.y - halfSize <= 0) {
+      position.y = halfSize;
+      velocity.y = velocity.y.abs();
+    }
   }
 
   @override
